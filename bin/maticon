@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -e
+set -u
+
+NAME=${1:-}
+INDIR=${2:-}
+OUTDIR=${3:-}
+
+if [[ -z $NAME ]]; then
+    echo 'No icon name supplied, quiting'
+    exit
+fi
+
+if [[ -z $INDIR ]]; then
+    INDIR='.'
+fi
+
+if [[ -z $OUTDIR ]]; then
+    OUTDIR='.'
+fi
+
+for FILEPATH in $(find ${INDIR} -type f -name "*${NAME}.png" ! -path "*/*x_web/*" ! -path "*/*x_ios/*" -print | sed 's/^\.\///')
+do
+    FULLDIR=`dirname ${FILEPATH}`
+    WRAPDIR=`basename ${FULLDIR}`
+    FILENAME=`basename ${FILEPATH}`
+    RESDIR=`echo "$OUTDIR/$WRAPDIR" | sed 's|/\+|/|g'`
+    test -d "$RESDIR" || mkdir -p "$RESDIR" && cp "$FILEPATH" "$RESDIR/$FILENAME" -v
+done
